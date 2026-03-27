@@ -4,16 +4,29 @@ using UnityEngine.Serialization;
 
 public class EnemyMovement : MonoBehaviour
 {
-    private Rigidbody2D _rb;
+    private Rigidbody2D rb;
     [SerializeField] private float moveSpeed = 1f;
+    [SerializeField] public int health;
+    [SerializeField] private bool isBig;
+    private float scale;
+    [SerializeField] AudioClip deathSFX;
+    [SerializeField] float deathSFXVolume;
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
+        if (isBig)
+        {
+            scale = 3f;
+        }
+        else
+        {
+            scale = 1;
+        }
     }
 
     void Update()
     {
-        _rb.linearVelocity = new Vector2 (moveSpeed, _rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2 (moveSpeed, rb.linearVelocity.y);
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -27,6 +40,18 @@ public class EnemyMovement : MonoBehaviour
 
     private void EnemyFlip()
     {
-        transform.localScale = new Vector3(-Mathf.Sign(_rb.linearVelocity.x), 1f, 1f);
+        transform.localScale = new Vector2(-Mathf.Sign(rb.linearVelocity.x)*scale, 
+                                            rb.transform.localScale.y);
+    }
+
+    public void Hit(int damage)
+    {
+        health -= damage;
+    }
+
+    public void Die()
+    {
+        AudioSource.PlayClipAtPoint(deathSFX, transform.position, deathSFXVolume);
+        Destroy(gameObject);
     }
 }

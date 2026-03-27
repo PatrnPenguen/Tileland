@@ -5,9 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class GameSession : MonoBehaviour
 {
-    [SerializeField] int lives = 3;
+    [SerializeField] public int lives = 3;
     [SerializeField] int score = 0;
-    [SerializeField] int pointsForCoinPickup = 100;
+    int pointsForCoinPickup = 1;
     
     [SerializeField] TextMeshProUGUI livesText;
     [SerializeField] TextMeshProUGUI scoreText;
@@ -47,15 +47,18 @@ public class GameSession : MonoBehaviour
             ResetGameSession();
         }
     }
-    void TakeLife()
+    private void TakeLife()
     {
         lives--;
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentSceneIndex);
         livesText.text = "Lives: " + lives;  
     }
-    void ResetGameSession()
+    public void ResetGameSession()
     {
+        lives = 3;
+        score = 0;
+        
         FindFirstObjectByType<ScenePersist>().ResetScenePersist();
         SceneManager.LoadScene(0);
         Destroy(gameObject);

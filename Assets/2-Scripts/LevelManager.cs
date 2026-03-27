@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
     }
     IEnumerator LoadNextLevel()
     {
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(0.5f);
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int nextSceneIndex = currentSceneIndex + 1;
 

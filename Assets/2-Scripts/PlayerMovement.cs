@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Threading.Tasks;
@@ -19,9 +20,15 @@ public class PlayerMovement : MonoBehaviour
     bool isAlive = true;
     [SerializeField] float deathSpeedX = 10f;
     [SerializeField] float deathSpeedY = 8f;
+    [SerializeField] AudioClip deathSFX;
+    [SerializeField] float deathSFXVolume = 0.5f;
     
     GameObject gun;
     [SerializeField] GameObject bullet;
+    [SerializeField] AudioClip bulletSFX;
+    [SerializeField] float bulletSFXVolume = 0.5f;
+    
+    bool isDying = false;
     
     void Start()
     {
@@ -39,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
         ClimbLadder();
         FlipSprite();
         Die();
-        print(rb.linearVelocity.x);
     }
 
     void OnMove(InputValue value)
@@ -62,6 +68,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if(!isAlive){return;}
         Instantiate(bullet, gun.transform.position, transform.rotation);
+        if (bulletSFX != null)
+        {
+            AudioSource.PlayClipAtPoint(bulletSFX, transform.position, bulletSFXVolume);
+        }
     }
 
     void Run()
@@ -97,23 +107,25 @@ public class PlayerMovement : MonoBehaviour
 
     void Die()
     {
+        if (isDying) return;
+
         if (capsule.IsTouchingLayers(LayerMask.GetMask("Enemy", "Spine", "Water")))
         {
-            Dying();
-            FindAnyObjectByType<GameSession>().ProcessPlayerDeath();
+            StartCoroutine(DeathRoutine());
         }
     }
 
-    async Task Dying()
+    IEnumerator DeathRoutine()
     {
+        isDying = true;
         isAlive = false;
+
         animator.SetTrigger("Dying");
-        rb.linearVelocity = new Vector2 (-deathSpeedX*Mathf.Sign(rb.linearVelocityX), deathSpeedY);
-        await Task.Delay(1000);
-        rb.linearVelocity = new Vector2 (rb.linearVelocityX, -rb.linearVelocityY);
-        if (box.IsTouchingLayers(LayerMask.GetMask("Ground")))
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        rb.linearVelocity = new Vector2(-deathSpeedX * Mathf.Sign(transform.localScale.x), deathSpeedY);
+        AudioSource.PlayClipAtPoint(deathSFX, transform.position, deathSFXVolume);
+        
+        yield return new WaitForSeconds(1f);
+
+        FindAnyObjectByType<GameSession>().ProcessPlayerDeath();
     }
 }
