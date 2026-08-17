@@ -1,3 +1,4 @@
-## Tilemania (Udemy)
+## Tileland (Udemy)
 
-A 2D Unity game project for a beginner to develop
+A 2D Unity game project.
+itch.io link: https://patrnpenguen.itch.io/tileland
